@@ -11,8 +11,13 @@ function readJSON<T>(file: string): T {
 
 function writeJSON<T>(file: string, data: T): void {
   const filePath = path.join(DATA_DIR, file);
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (error) {
+    console.warn(`[WARN] Serverless environment: unable to write to ${filePath}. In-memory fallback is active for this session only.`);
+  }
 }
+
 
 // ─── Products ─────────────────────────────────────────────────────────────────
 export function getProducts() {
