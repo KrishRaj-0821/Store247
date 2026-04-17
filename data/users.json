@@ -1,0 +1,71 @@
+[
+  {
+    "id": "u1",
+    "name": "Rahul Sharma",
+    "email": "rahul@example.com",
+    "phone": "9876543210",
+    "alternatePhone": "9988776655",
+    "membership": "Prime",
+    "loyaltyPoints": 580,
+    "avatar": "",
+    "addresses": [
+      {
+        "id": "a1",
+        "label": "Home",
+        "name": "Rahul Sharma",
+        "phone": "9876543210",
+        "line1": "12 Railway Colony",
+        "line2": "Near Block Office",
+        "city": "Purnia",
+        "state": "Bihar",
+        "pincode": "854318",
+        "isDefault": true
+      }
+    ],
+    "role": "customer",
+    "createdAt": "2025-12-01T10:00:00Z",
+    "approved": true
+  },
+  {
+    "id": "u2",
+    "name": "Priya Singh",
+    "email": "priya@example.com",
+    "phone": "9123456780",
+    "alternatePhone": "",
+    "membership": "Standard",
+    "loyaltyPoints": 120,
+    "avatar": "",
+    "addresses": [
+      {
+        "id": "a2",
+        "label": "Home",
+        "name": "Priya Singh",
+        "phone": "9123456780",
+        "line1": "45 Green Park",
+        "line2": "",
+        "city": "Katihar",
+        "state": "Bihar",
+        "pincode": "854105",
+        "isDefault": true
+      }
+    ],
+    "role": "customer",
+    "createdAt": "2026-01-15T09:00:00Z",
+    "approved": true
+  },
+  {
+    "id": "admin1",
+    "name": "Admin",
+    "email": "admin@skgeneral.com",
+    "phone": "8434103661",
+    "alternatePhone": "",
+    "membership": "VIP",
+    "loyaltyPoints": 0,
+    "avatar": "",
+    "addresses": [],
+    "role": "admin",
+    "password": "admin123",
+    "createdAt": "2025-01-01T00:00:00Z",
+    "approved": true
+  }
+]

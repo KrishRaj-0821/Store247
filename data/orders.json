@@ -1,0 +1,71 @@
+[
+  {
+    "id": "o1",
+    "userId": "u1",
+    "orderNumber": "SKG-2026-001",
+    "status": "Delivered",
+    "items": [
+      { "productId": "p1", "name": "Premium Basmati Rice", "price": 450, "qty": 1, "unit": "5 kg" },
+      { "productId": "p5", "name": "Tata Tea Gold", "price": 275, "qty": 2, "unit": "500 g" }
+    ],
+    "subtotal": 1000,
+    "deliveryFee": 0,
+    "discount": 0,
+    "total": 1000,
+    "paymentMethod": "UPI",
+    "address": { "name": "Rahul Sharma", "phone": "9876543210", "line1": "12 Railway Colony", "city": "Purnia", "state": "Bihar", "pincode": "854318" },
+    "timeline": [
+      { "status": "Placed", "time": "2026-04-10T10:00:00Z" },
+      { "status": "Confirmed", "time": "2026-04-10T10:30:00Z" },
+      { "status": "Dispatched", "time": "2026-04-10T14:00:00Z" },
+      { "status": "Out for Delivery", "time": "2026-04-10T17:00:00Z" },
+      { "status": "Delivered", "time": "2026-04-10T19:30:00Z" }
+    ],
+    "createdAt": "2026-04-10T10:00:00Z"
+  },
+  {
+    "id": "o2",
+    "userId": "u1",
+    "orderNumber": "SKG-2026-002",
+    "status": "Dispatched",
+    "items": [
+      { "productId": "p8", "name": "Amul Full Cream Milk", "price": 68, "qty": 3, "unit": "1 L" },
+      { "productId": "p10", "name": "Amul Butter", "price": 58, "qty": 1, "unit": "100 g" },
+      { "productId": "p18", "name": "Maggi 2-Minute Noodles", "price": 72, "qty": 2, "unit": "Pack of 4" }
+    ],
+    "subtotal": 406,
+    "deliveryFee": 20,
+    "discount": 0,
+    "total": 426,
+    "paymentMethod": "COD",
+    "address": { "name": "Rahul Sharma", "phone": "9876543210", "line1": "12 Railway Colony", "city": "Purnia", "state": "Bihar", "pincode": "854318" },
+    "timeline": [
+      { "status": "Placed", "time": "2026-04-16T09:00:00Z" },
+      { "status": "Confirmed", "time": "2026-04-16T09:30:00Z" },
+      { "status": "Dispatched", "time": "2026-04-16T13:00:00Z" }
+    ],
+    "createdAt": "2026-04-16T09:00:00Z"
+  },
+  {
+    "id": "o3",
+    "userId": "u2",
+    "orderNumber": "SKG-2026-003",
+    "status": "Confirmed",
+    "items": [
+      { "productId": "p4", "name": "Aashirvaad Atta", "price": 340, "qty": 1, "unit": "10 kg" },
+      { "productId": "p12", "name": "Head & Shoulders Shampoo", "price": 198, "qty": 1, "unit": "340 ml" },
+      { "productId": "p17", "name": "Lays Classic Salted Chips", "price": 20, "qty": 5, "unit": "26 g" }
+    ],
+    "subtotal": 638,
+    "deliveryFee": 20,
+    "discount": 0,
+    "total": 658,
+    "paymentMethod": "Card",
+    "address": { "name": "Priya Singh", "phone": "9123456780", "line1": "45 Green Park", "city": "Katihar", "state": "Bihar", "pincode": "854105" },
+    "timeline": [
+      { "status": "Placed", "time": "2026-04-17T08:00:00Z" },
+      { "status": "Confirmed", "time": "2026-04-17T08:30:00Z" }
+    ],
+    "createdAt": "2026-04-17T08:00:00Z"
+  }
+]

@@ -1,0 +1,60 @@
+[
+  {
+    "id": "c1",
+    "type": "announcement",
+    "authorId": "admin1",
+    "authorName": "S. K. General STORE",
+    "authorRole": "admin",
+    "title": "🎉 Grand Festival Sale — Up to 40% Off!",
+    "content": "This week, celebrate with us! Get up to 40% off on all grocery essentials. Offer valid till Sunday midnight. Use code FESTIVAL40 at checkout.",
+    "image": "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80",
+    "likes": 45,
+    "comments": [
+      { "id": "cc1", "userId": "u1", "userName": "Rahul Sharma", "text": "Amazing offer! Already ordered 🛍️", "createdAt": "2026-04-15T11:00:00Z" }
+    ],
+    "pinned": true,
+    "createdAt": "2026-04-15T10:00:00Z"
+  },
+  {
+    "id": "c2",
+    "type": "post",
+    "authorId": "u1",
+    "authorName": "Rahul Sharma",
+    "authorRole": "customer",
+    "title": "Excellent service and fresh products!",
+    "content": "Ordered Basmati Rice and Amul Milk yesterday. Everything was delivered fresh and on time. The packing was also very good. Highly recommend SK General Store to everyone! 👍",
+    "image": "",
+    "likes": 23,
+    "comments": [],
+    "pinned": false,
+    "createdAt": "2026-04-14T14:30:00Z"
+  },
+  {
+    "id": "c3",
+    "type": "announcement",
+    "authorId": "admin1",
+    "authorName": "S. K. General STORE",
+    "authorRole": "admin",
+    "title": "📦 New Stock Alert — Fresh Arrivals!",
+    "content": "We've restocked our Dairy section with fresh Amul products and added new premium snacks. Check out new arrivals in the app now!",
+    "image": "",
+    "likes": 32,
+    "comments": [],
+    "pinned": false,
+    "createdAt": "2026-04-13T09:00:00Z"
+  },
+  {
+    "id": "c4",
+    "type": "post",
+    "authorId": "u2",
+    "authorName": "Priya Singh",
+    "authorRole": "customer",
+    "title": "Love the new app! 😍",
+    "content": "The new SK General app is so easy to use. Found everything I needed in minutes. Cart and checkout was super smooth. Will definitely order again!",
+    "image": "",
+    "likes": 18,
+    "comments": [],
+    "pinned": false,
+    "createdAt": "2026-04-12T16:00:00Z"
+  }
+]
