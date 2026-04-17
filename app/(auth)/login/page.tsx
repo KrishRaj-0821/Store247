@@ -1,28 +1,58 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/AuthContext';
+import { auth } from '@/lib/firebase';
+import { 
+  RecaptchaVerifier, 
+  signInWithPhoneNumber, 
+  signInWithEmailAndPassword,
+  ConfirmationResult
+} from 'firebase/auth';
 import { Mail, Phone, Lock, User as UserIcon, Shield, Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import toast from 'react-hot-toast';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useAuth();
+  const { user } = useAuth(); // We don't call login() manually anymore; AuthContext handles it via onAuthStateChanged
   
   const [isRegister, setIsRegister] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [step, setStep] = useState<'request' | 'verify'>('request');
   
   // Form states
-  const [phone, setPhone] = useState('9876543210'); // Demo phone
+  const [phone, setPhone] = useState(''); 
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
+  const [name, setName] = useState(''); // Used during sync if new user
   const [otp, setOtp] = useState('');
-  const [password, setPassword] = useState('admin123'); // Demo password
+  const [password, setPassword] = useState('');
   
   const [loading, setLoading] = useState(false);
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+
+  useEffect(() => {
+    // If the user gets authenticated (synced via AuthContext), redirect them
+    if (user) {
+      if (user.role === 'admin') {
+        router.push('/admin');
+      } else {
+        router.push('/');
+      }
+    }
+  }, [user, router]);
+
+  const setupRecaptcha = () => {
+    if (!window.recaptchaVerifier) {
+      window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        'size': 'invisible',
+        'callback': (response: any) => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+        }
+      });
+    }
+  };
 
   const handleRequestOtp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,20 +61,11 @@ export default function LoginPage() {
       if (!email || !password) return toast.error('Enter email and password');
       setLoading(true);
       try {
-        const res = await fetch('/api/auth', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'admin-login', email, password })
-        });
-        const data = await res.json();
-        if (data.success) {
-          login(data.user);
-          toast.success('Welcome Admin!');
-          router.push('/admin');
-        } else {
-          toast.error(data.error);
-        }
-      } finally {
+        await signInWithEmailAndPassword(auth, email, password);
+        toast.success('Welcome Admin!');
+        // Context will pick up the state change and the useEffect above will redirect
+      } catch (error: any) {
+        toast.error(error.message || 'Failed to login');
         setLoading(false);
       }
       return;
@@ -55,52 +76,67 @@ export default function LoginPage() {
     if (isRegister && !name) return toast.error('Enter your name');
     
     setLoading(true);
+    setupRecaptcha();
+    const appVerifier = window.recaptchaVerifier;
+
+    // Ensure phone has country code. Assuming Indian numbering for this store:
+    const formattedPhone = phone.startsWith('+') ? phone : `+91${phone}`;
+
     try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'send-otp', phone })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setStep('verify');
-        // Pre-fill OTP for easy testing
-        setOtp(data.devOtp);
-        toast.success(`OTP Sent! (Demo: ${data.devOtp})`);
-      } else {
-        toast.error(data.error);
-      }
-    } finally {
+      const confirmation = await signInWithPhoneNumber(auth, formattedPhone, appVerifier);
+      setConfirmationResult(confirmation);
+      setStep('verify');
+      toast.success(`OTP Sent to ${formattedPhone}`);
       setLoading(false);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to send OTP");
+      setLoading(false);
+      // Reset recaptcha if failed
+      if (window.recaptchaVerifier) {
+        window.recaptchaVerifier.clear();
+        window.recaptchaVerifier = undefined;
+      }
     }
   };
 
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!otp) return toast.error('Enter OTP');
+    if (!confirmationResult) return toast.error("Session expired, please request OTP again.");
     
     setLoading(true);
     try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'verify-otp', phone, otp, name, email })
-      });
-      const data = await res.json();
-      if (data.success) {
-        login(data.user);
-        toast.success(`Welcome ${data.user.name}!`);
-        router.push('/');
-      } else {
-        toast.error(data.error);
+      const result = await confirmationResult.confirm(otp);
+      
+      // If the user is new (registering), we could ideally update their profile name in Firebase
+      // However, our backend sync logic uses the `name` state if available.
+      if (isRegister && name && result.user) {
+         // Hacky way to pass the registered name to the first sync call before context mounts fully
+         await fetch('/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              action: 'sync-user', 
+              uid: result.user.uid,
+              phone: result.user.phoneNumber,
+              name: name 
+            })
+         });
       }
-    } finally {
+
+      toast.success(`Welcome!`);
+      // Context will handle the rest via onAuthStateChanged
+    } catch (error: any) {
+      toast.error(error.message || "Invalid OTP");
       setLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
+      {/* Invisible Recaptcha container */}
+      <div id="recaptcha-container"></div>
+      
       <div className="absolute top-4 left-4">
         <Link href="/" className="flex items-center gap-2 text-slate-500 hover:text-green-600 transition-colors font-medium">
           <ArrowLeft size={16} /> Back to Store
@@ -174,7 +210,7 @@ export default function LoginPage() {
                       <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase">Phone Number</label>
                       <div className="relative">
                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                        <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} className="input-field pl-10" placeholder="98765 43210" required maxLength={10} />
+                        <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} className="input-field pl-10" placeholder="98765 43210" required />
                       </div>
                     </div>
                     {isRegister && (
@@ -194,8 +230,7 @@ export default function LoginPage() {
             {step === 'verify' && !isAdmin && (
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1.5 uppercase leading-relaxed">
-                  Enter OTP sent to {phone} <br/>
-                  <span className="text-amber-600 lowercase">(Demo mode: OTP is pre-filled)</span>
+                  Enter OTP sent to +91 {phone}
                 </label>
                 <div className="relative flex justify-center">
                   <input
@@ -211,8 +246,8 @@ export default function LoginPage() {
               </div>
             )}
 
-            <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3.5 text-base mt-2">
-              {loading ? <Loader2 size={18} className="animate-spin" /> : (
+            <button type="submit" disabled={loading} className="btn-primary w-full justify-center py-3.5 text-base mt-2 relative">
+              {loading ? <span className="flex items-center gap-2"><Loader2 size={18} className="animate-spin" /> Retrieving...</span> : (
                 step === 'verify' ? 'Verify OTP & Login' : (isAdmin ? 'Login as Admin' : (isRegister ? 'Send OTP' : 'Request OTP'))
               )}
             </button>

@@ -1,6 +1,8 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { auth } from '@/lib/firebase';
+import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 
 export interface AuthUser {
   id: string;
@@ -29,21 +31,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const saved = localStorage.getItem('sk_user');
-    if (saved) {
-      try { setUser(JSON.parse(saved)); } catch {}
-    }
-    setIsLoading(false);
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      if (firebaseUser) {
+        try {
+          // Sync with our backend to get or create the detailed user profile
+          const res = await fetch('/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              action: 'sync-user', 
+              uid: firebaseUser.uid,
+              phone: firebaseUser.phoneNumber || '',
+              email: firebaseUser.email || '',
+              name: firebaseUser.displayName || 'Customer'
+            })
+          });
+          const data = await res.json();
+          if (data.success) {
+            setUser(data.user);
+          } else {
+            console.error("Failed to sync user data:", data.error);
+            setUser(null);
+          }
+        } catch (error) {
+          console.error("Error fetching user session:", error);
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
   const login = (userData: AuthUser) => {
     setUser(userData);
-    localStorage.setItem('sk_user', JSON.stringify(userData));
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('sk_user');
+  const logout = async () => {
+    try {
+      await firebaseSignOut(auth);
+      setUser(null);
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
   };
 
   return (
